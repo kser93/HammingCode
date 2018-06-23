@@ -1,9 +1,8 @@
-#include <cstdlib>
-#include <ctime>
 #include <iostream>
 #include <vector>
 #include <numeric>
 #include <algorithm>
+#include <random>
 
 void print_description(unsigned r)
 {
@@ -26,7 +25,6 @@ void print_description(unsigned r)
 		std::begin(control_bits), std::end(control_bits),
 		std::begin(word_bits)
 	);
-
 	std::cout << "Data bits:";
 	for (const auto &bit : word_bits)
 		std::cout << ' ' << bit << ',';
@@ -53,7 +51,8 @@ void print_description(unsigned r)
 int main()
 {
 	std::cout << "Hamming code illustration" << std::endl;
-	std::srand(std::time(NULL));
+	std::random_device rd;
+	std::mt19937 gen(rd());
 
 	for (auto r{ 3 }; r < 10; ++r)
 	{
@@ -64,7 +63,7 @@ int main()
 			std::vector<bool> word(m + r);
 			for (auto &bit : word)
 			{
-				bit = std::rand() % 2;
+				bit = std::bernoulli_distribution(0.5)(gen);
 			}
 			for (auto index{ 1 }; index < word.size(); index <<= 1)
 			{
@@ -78,7 +77,7 @@ int main()
 				}
 			}
 			std::vector<bool> original_word{ word };
-			auto errbit{ std::rand() % (m + r) + 1 }; // starts from 1, 0 is no result
+			auto errbit{ std::uniform_int_distribution<>(1, m + r)(gen) };
 			word[errbit - 1] = !word[errbit - 1];
 
 			std::vector<bool> control_word{ word };
